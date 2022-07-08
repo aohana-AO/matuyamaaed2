@@ -15,7 +15,7 @@ class IndexView(TemplateView):
 
 
 class AllhosView(TemplateView):
-    template_name = 'app/allhospital.html'
+    template_name = 'app/hospital2.html'
 
 
 class KyuuhosView(TemplateView):

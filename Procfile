@@ -1,1 +1,1 @@
-web: gunicorn matuyamaaed.wsgi
+web: gunicorn matuyamaaed2.wsgi

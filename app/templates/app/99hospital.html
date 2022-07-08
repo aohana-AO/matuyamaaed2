@@ -1,0 +1,637 @@
+
+{% load static %}
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {white-space: nowrap;width: 100%;height: 100%;margin: 0px;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+     <!-- plugin -->
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+     <link rel="stylesheet"  href="{% static 'css/L.Control.Locate.min.css' %}"/>
+    <script type="text/javascript" src="{% static 'js/L.Control.Locate.min.js' %}"></script>
+ <!-- plugin -->
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_dbf5a77bd0314d4aaf50e93912a5611b {
+                    position: absolute;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 57px;
+                }
+                header{
+                    margin-bottom: 0px;
+                }
+            </style>
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>    
+      <header>
+<nav class="navbar navbar-inverse " style="padding: 3px">
+        <div class="container-fluid">
+<!-- ヘッダー部分 ================ -->
+<div class="navbar-header">
+<a class="navbar-brand" href="{% url 'index' %}" style="color: #ffffff;font-size: 140%;">松山市AED設置場所マップ</a>
+<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav_target">
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+</div>
+            <!-- 中央のナビゲーション部分 ================ -->
+<div class="collapse navbar-collapse" id="nav_target">
+<ul class="nav navbar-nav">
+<!-- リンクのみ -->
+
+<!-- Nav1 ドロップダウン -->
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown">AED情報 <span class="caret"></span></a>
+<ul class="dropdown-menu">
+<li><a href="{% url 'NewsView' %}">AED最新ニュース</a></li>
+<li><a href="https://www.aed-life.com/information/use/">AED使用方法</a></li>
+<li><a href="http://qqzaidan.jp/aed_settitouroku/">日本救急医療財団AED</a></li>
+</ul>
+</li>
+<!-- Nav2 ドロップダウン -->
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown">医療・AED場所一覧<span class="caret"></span></a>
+<ul class="dropdown-menu">
+<li><a href="{% url 'index' %}">松山市-AED設置マップ</a></li>
+<li><a href="{% url 'kyuuhos' %}">救急-医療機関マップ</a></li>
+<li><a href="{% url 'allhos' %}">松山市-医療機関マップ</a></li>
+</ul>
+</li>
+<!-- Nav3 ドロップダウン -->
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown">サイト情報 <span class="caret"></span></a>
+<ul class="dropdown-menu">
+<li><a href="{% url 'blog' %}">当サイトについて</a></li>
+<li><a href="https://forms.gle/EYqmTEpEmUCQZF5q6">問い合わせ</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</nav>
+</header>
+            <div class="folium-map" id="map_dbf5a77bd0314d4aaf50e93912a5611b" ></div>
+        
+</body>
+<script>    
+    
+
+
+                   
+//開いた瞬間発動するマップ
+var base = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+
+var map_dbf5a77bd0314d4aaf50e93912a5611b = L.map(
+    "map_dbf5a77bd0314d4aaf50e93912a5611b",
+    {
+        center: [33.8314789, 132.7649427],
+        crs: L.CRS.EPSG3857,
+        zoom: 10,
+        zoomControl: true,
+        preferCanvas: false,
+        //zoom倍率
+        minZoom: 10,
+        maxZoom: 19,
+        maxNativeZoom: 19,
+        //タイル
+        layers:[base]
+      
+    }
+);
+
+
+        // Locate
+        var option = {
+        position: 'topright',
+        strings: {
+            title: "現在地を表示",
+            popup: "現在地",
+        },
+        icon: "fa fa-street-view",
+        locateOptions: {
+            maxZoom: 16
+        }
+        }
+    
+        var lc = L.control.locate(option).addTo(map_dbf5a77bd0314d4aaf50e93912a5611b);
+        lc.start();
+
+        //ここからマップいじり
+    
+        var Basic_Map = new Array();
+            Basic_Map[ 0 ] = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+            Basic_Map[ 1 ] = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+                attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+            });
+            Basic_Map[ 2 ] = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg', {
+                attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+            });
+            Basic_Map[ 3 ] = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles © <a href="http://www.esrij.com/"> Esri Japan </a>'
+            });
+            Basic_Map[ 4 ]=L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+                attribution: "<a href='https://developers.google.com/maps/documentation' target='_blank'>Google Map</a>"
+            });
+            
+            var baseMap = {
+                "OpenStreetMap": Basic_Map[ 0 ],
+                "国土地理院 標準地図": Basic_Map[ 1 ],
+                "国土地理院 写真": Basic_Map[ 2 ],
+                "Esri World Topo Map": Basic_Map[ 3 ],
+                "google Map": Basic_Map[ 4 ],
+                
+            };
+
+            var tile_layer_e30869c0c03748739f4138485c0784d4 = L.control.layers(baseMap).addTo(map_dbf5a77bd0314d4aaf50e93912a5611b);
+        //ここまで
+    
+        
+    
+            var marker_cluster_e5d0fc10cc1942dd917c2655041be319 = L.markerClusterGroup(
+                {}
+            );
+            map_dbf5a77bd0314d4aaf50e93912a5611b.addLayer(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var marker_79ef578d861441bc87de529e9868eaa9 = L.marker(
+                [33.83294244, 132.7683263],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_8835f75aa1dc49b49a9558a9829ada31 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_79ef578d861441bc87de529e9868eaa9.setIcon(icon_8835f75aa1dc49b49a9558a9829ada31);
+        
+    
+        var popup_f900720ab7ef4abfa946c48d54c0824d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ed6358228e22423eb35d89524896899a = $(`<div id="html_ed6358228e22423eb35d89524896899a" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=愛媛県口腔保健センター"><font size="4" color="#0000FF">愛媛県口腔保健センター</font></a></h3></strong><hr><p>医療機関の種類: 一次救急医療機関</p><p>電話番号: <a href="089-932-5047">089-932-5047</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市柳井町2丁目6-2">松山市柳井町2丁目6-2</a></p></div> </div>`)[0];
+            popup_f900720ab7ef4abfa946c48d54c0824d.setContent(html_ed6358228e22423eb35d89524896899a);
+        
+
+        marker_79ef578d861441bc87de529e9868eaa9.bindPopup(popup_f900720ab7ef4abfa946c48d54c0824d)
+        ;
+
+        
+    
+    
+            var marker_971b02a10ab347eb8b2ca5a42c198a7f = L.marker(
+                [33.85249857, 132.7573499],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_18b10d194cda40b0a5e24aafcf5dc82a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_971b02a10ab347eb8b2ca5a42c198a7f.setIcon(icon_18b10d194cda40b0a5e24aafcf5dc82a);
+        
+    
+        var popup_6f72e5e16f404937ab655c65295d01a2 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5f24dae04f1f4d598fec0426ebf641ac = $(`<div id="html_5f24dae04f1f4d598fec0426ebf641ac" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=松山市急患医療センター"><font size="4" color="#0000FF">松山市急患医療センター</font></a></h3></strong><hr><p>医療機関の種類: 一次救急医療機関</p><p>電話番号: <a href="089-922-1199">089-922-1199</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市萱町6丁目30-1">松山市萱町6丁目30-1</a></p></div> </div>`)[0];
+            popup_6f72e5e16f404937ab655c65295d01a2.setContent(html_5f24dae04f1f4d598fec0426ebf641ac);
+        
+
+        marker_971b02a10ab347eb8b2ca5a42c198a7f.bindPopup(popup_6f72e5e16f404937ab655c65295d01a2)
+        ;
+
+        
+    
+    
+            var marker_33fc06b8a5ad41589966645e8f0e4599 = L.marker(
+                [33.82992882, 132.7583091],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_483998ec1ff24914a4f8415e1ecff85b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_33fc06b8a5ad41589966645e8f0e4599.setIcon(icon_483998ec1ff24914a4f8415e1ecff85b);
+        
+    
+        var popup_9f71450c97484e0b8ecf36b9a1c8bb52 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6dca2a08644343518b232bf6dba3d0a1 = $(`<div id="html_6dca2a08644343518b232bf6dba3d0a1" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=松山市医師会休日診療所"><font size="4" color="#0000FF">松山市医師会休日診療所</font></a></h3></strong><hr><p>医療機関の種類: 一次救急医療機関</p><p>電話番号: <a href="089-915-3111">089-915-3111</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市藤原2丁目4-70">松山市藤原2丁目4-70</a></p></div> </div>`)[0];
+            popup_9f71450c97484e0b8ecf36b9a1c8bb52.setContent(html_6dca2a08644343518b232bf6dba3d0a1);
+        
+
+        marker_33fc06b8a5ad41589966645e8f0e4599.bindPopup(popup_9f71450c97484e0b8ecf36b9a1c8bb52)
+        ;
+
+        
+    
+    
+            var marker_6c874e4ccedc479589cc1a6185332de9 = L.marker(
+                [33.8467788, 132.774159],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_d16dbba16484466dbb9549fef7a66888 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_6c874e4ccedc479589cc1a6185332de9.setIcon(icon_d16dbba16484466dbb9549fef7a66888);
+        
+    
+        var popup_1e9c53f855fe479c827a72bc7afa322a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ea9cbd7cbcc142d4beafd5091989e3bb = $(`<div id="html_ea9cbd7cbcc142d4beafd5091989e3bb" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=浦屋病院"><font size="4" color="#0000FF">浦屋病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-943-0150">089-943-0150</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市中一万町5-10">松山市中一万町5-10</a></p></div> </div>`)[0];
+            popup_1e9c53f855fe479c827a72bc7afa322a.setContent(html_ea9cbd7cbcc142d4beafd5091989e3bb);
+        
+
+        marker_6c874e4ccedc479589cc1a6185332de9.bindPopup(popup_1e9c53f855fe479c827a72bc7afa322a)
+        ;
+
+        
+    
+    
+            var marker_ed36a98cc48b4960a0a1faa9ab94c56d = L.marker(
+                [33.85238067, 132.7208752],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_15a70bf81dbb439686062bec8e743afc = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_ed36a98cc48b4960a0a1faa9ab94c56d.setIcon(icon_15a70bf81dbb439686062bec8e743afc);
+        
+    
+        var popup_b1d9f54198404083b3b7e89ec39e6c7c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c3113723d6b140459b2a9137282b3276 = $(`<div id="html_c3113723d6b140459b2a9137282b3276" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=済生会松山病院"><font size="4" color="#0000FF">済生会松山病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-951-6111">089-951-6111</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市山西町880-2">松山市山西町880-2</a></p></div> </div>`)[0];
+            popup_b1d9f54198404083b3b7e89ec39e6c7c.setContent(html_c3113723d6b140459b2a9137282b3276);
+        
+
+        marker_ed36a98cc48b4960a0a1faa9ab94c56d.bindPopup(popup_b1d9f54198404083b3b7e89ec39e6c7c)
+        ;
+
+        
+    
+    
+            var marker_094fd14446834d9dab8d8df766789b36 = L.marker(
+                [33.83746774, 132.7649067],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_10f870f3c54b488da70bf553d8de91cf = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_094fd14446834d9dab8d8df766789b36.setIcon(icon_10f870f3c54b488da70bf553d8de91cf);
+        
+    
+        var popup_73738d1be5e34477a1d5dfd010d74adb = L.popup({"maxWidth": "100%"});
+
+        
+            var html_74ae5ae6bed5410088ef34bbcc4308c5 = $(`<div id="html_74ae5ae6bed5410088ef34bbcc4308c5" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=梶浦病院"><font size="4" color="#0000FF">梶浦病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-943-2208">089-943-2208</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市三番町4丁目4-5">松山市三番町4丁目4-5</a></p></div> </div>`)[0];
+            popup_73738d1be5e34477a1d5dfd010d74adb.setContent(html_74ae5ae6bed5410088ef34bbcc4308c5);
+        
+
+        marker_094fd14446834d9dab8d8df766789b36.bindPopup(popup_73738d1be5e34477a1d5dfd010d74adb)
+        ;
+
+        
+    
+    
+            var marker_d6ba6a518d5e44d09156da5e1c38291c = L.marker(
+                [33.82782329, 132.7267303],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_6407f887bc72467496d2cbac14574547 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_d6ba6a518d5e44d09156da5e1c38291c.setIcon(icon_6407f887bc72467496d2cbac14574547);
+        
+    
+        var popup_5d130c846de549ac9d7257c089d5eb1d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_02f08457653148aeb4e2d1581e6dbb19 = $(`<div id="html_02f08457653148aeb4e2d1581e6dbb19" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=渡辺病院"><font size="4" color="#0000FF">渡辺病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-973-0111">089-973-0111</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市空港通7丁目13-3">松山市空港通7丁目13-3</a></p></div> </div>`)[0];
+            popup_5d130c846de549ac9d7257c089d5eb1d.setContent(html_02f08457653148aeb4e2d1581e6dbb19);
+        
+
+        marker_d6ba6a518d5e44d09156da5e1c38291c.bindPopup(popup_5d130c846de549ac9d7257c089d5eb1d)
+        ;
+
+        
+    
+    
+            var marker_3cca593b9596479cb7cc840589df7482 = L.marker(
+                [33.83854156, 132.7638869],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_e79845609d4d425e9f1a38b9f5c20c2a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_3cca593b9596479cb7cc840589df7482.setIcon(icon_e79845609d4d425e9f1a38b9f5c20c2a);
+        
+    
+        var popup_fa293a58f36243468e136a1d93596ac5 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e56e53771636426383ba73548aeebfa4 = $(`<div id="html_e56e53771636426383ba73548aeebfa4" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=野本記念病院"><font size="4" color="#0000FF">野本記念病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-943-0151">089-943-0151</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市三番町5丁目12-1">松山市三番町5丁目12-1</a></p></div> </div>`)[0];
+            popup_fa293a58f36243468e136a1d93596ac5.setContent(html_e56e53771636426383ba73548aeebfa4);
+        
+
+        marker_3cca593b9596479cb7cc840589df7482.bindPopup(popup_fa293a58f36243468e136a1d93596ac5)
+        ;
+
+        
+    
+    
+            var marker_ef8c91b2fab2409db9e907e0deadfdf5 = L.marker(
+                [33.80192521, 132.7794503],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_90a1013086594196a8d78a579ded02b8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_ef8c91b2fab2409db9e907e0deadfdf5.setIcon(icon_90a1013086594196a8d78a579ded02b8);
+        
+    
+        var popup_c46d68639a2c47a490b802fe4f25c660 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_843e1d63a9ec4142bea13238eb340d0f = $(`<div id="html_843e1d63a9ec4142bea13238eb340d0f" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=平成脳神経外科病院"><font size="4" color="#0000FF">平成脳神経外科病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-905-0011">089-905-0011</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市北井門2丁目7-28">松山市北井門2丁目7-28</a></p></div> </div>`)[0];
+            popup_c46d68639a2c47a490b802fe4f25c660.setContent(html_843e1d63a9ec4142bea13238eb340d0f);
+        
+
+        marker_ef8c91b2fab2409db9e907e0deadfdf5.bindPopup(popup_c46d68639a2c47a490b802fe4f25c660)
+        ;
+
+        
+    
+    
+            var marker_8e800005bc6446d9bbcf65b665c3bb8a = L.marker(
+                [33.8482035, 132.7827487],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_c45cf2607035456c8eae038ef3561050 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_8e800005bc6446d9bbcf65b665c3bb8a.setIcon(icon_c45cf2607035456c8eae038ef3561050);
+        
+    
+        var popup_1251aa3045504b03b74807855f44ad68 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a2fab8dfce0d48e484b08ac57b87a3cf = $(`<div id="html_a2fab8dfce0d48e484b08ac57b87a3cf" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=奥島病院"><font size="4" color="#0000FF">奥島病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-925-2500">089-925-2500</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市道後町2丁目2-1">松山市道後町2丁目2-1</a></p></div> </div>`)[0];
+            popup_1251aa3045504b03b74807855f44ad68.setContent(html_a2fab8dfce0d48e484b08ac57b87a3cf);
+        
+
+        marker_8e800005bc6446d9bbcf65b665c3bb8a.bindPopup(popup_1251aa3045504b03b74807855f44ad68)
+        ;
+
+        
+    
+    
+            var marker_e8818fd39856499b8a36db9c22b19692 = L.marker(
+                [33.8239709, 132.7741818],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_7cfd909e7c0b4909986b90386d884a14 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_e8818fd39856499b8a36db9c22b19692.setIcon(icon_7cfd909e7c0b4909986b90386d884a14);
+        
+    
+        var popup_9e4aa92a880c4fbaad88c974c4248616 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e37f6dfd61354b128088e7225bb9b1c2 = $(`<div id="html_e37f6dfd61354b128088e7225bb9b1c2" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=南松山病院"><font size="4" color="#0000FF">南松山病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-941-8255">089-941-8255</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市朝生田町1丁目3-10">松山市朝生田町1丁目3-10</a></p></div> </div>`)[0];
+            popup_9e4aa92a880c4fbaad88c974c4248616.setContent(html_e37f6dfd61354b128088e7225bb9b1c2);
+        
+
+        marker_e8818fd39856499b8a36db9c22b19692.bindPopup(popup_9e4aa92a880c4fbaad88c974c4248616)
+        ;
+
+        
+    
+    
+            var marker_cbafd71a0a5c42b88e350f563524302d = L.marker(
+                [33.82713018, 132.7883087],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_f8d6d6fc68d64bbc81f3174d4c6cdf46 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_cbafd71a0a5c42b88e350f563524302d.setIcon(icon_f8d6d6fc68d64bbc81f3174d4c6cdf46);
+        
+    
+        var popup_5015bdfb633e4e57a1de6fcf75d20b33 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6ad5de9e40dd4f0c9444782683c06742 = $(`<div id="html_6ad5de9e40dd4f0c9444782683c06742" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=松山城東病院"><font size="4" color="#0000FF">松山城東病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-943-7717">089-943-7717</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市松末2丁目19-36">松山市松末2丁目19-36</a></p></div> </div>`)[0];
+            popup_5015bdfb633e4e57a1de6fcf75d20b33.setContent(html_6ad5de9e40dd4f0c9444782683c06742);
+        
+
+        marker_cbafd71a0a5c42b88e350f563524302d.bindPopup(popup_5015bdfb633e4e57a1de6fcf75d20b33)
+        ;
+
+        
+    
+    
+            var marker_70d3dfdcf4d04a5f89496000b212f095 = L.marker(
+                [33.83500902, 132.7641408],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_d87a9beda82c4348aa46de96937cb17e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_70d3dfdcf4d04a5f89496000b212f095.setIcon(icon_d87a9beda82c4348aa46de96937cb17e);
+        
+    
+        var popup_eb0de77065da44dbb0fe657b733dc004 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e3282b6b7d064d89b1f46c2fb611fb7d = $(`<div id="html_e3282b6b7d064d89b1f46c2fb611fb7d" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=松山笠置記念心臓血管病院"><font size="4" color="#0000FF">松山笠置記念心臓血管病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-941-2288">089-941-2288</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市末広町18-2">松山市末広町18-2</a></p></div> </div>`)[0];
+            popup_eb0de77065da44dbb0fe657b733dc004.setContent(html_e3282b6b7d064d89b1f46c2fb611fb7d);
+        
+
+        marker_70d3dfdcf4d04a5f89496000b212f095.bindPopup(popup_eb0de77065da44dbb0fe657b733dc004)
+        ;
+
+        
+    
+    
+            var marker_50ad9c91b1af4e729606204d9b68df53 = L.marker(
+                [33.80879658, 132.7985871],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_09f8c57db769444d9d303af8c182575c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_50ad9c91b1af4e729606204d9b68df53.setIcon(icon_09f8c57db769444d9d303af8c182575c);
+        
+    
+        var popup_3f41b68f1b014cf4a39fa288e3a1ac57 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_87ec07b9672f441ba3ac15a540f8f21b = $(`<div id="html_87ec07b9672f441ba3ac15a540f8f21b" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=愛媛生協病院"><font size="4" color="#0000FF">愛媛生協病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-976-7001">089-976-7001</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市来住町1091-1">松山市来住町1091-1</a></p></div> </div>`)[0];
+            popup_3f41b68f1b014cf4a39fa288e3a1ac57.setContent(html_87ec07b9672f441ba3ac15a540f8f21b);
+        
+
+        marker_50ad9c91b1af4e729606204d9b68df53.bindPopup(popup_3f41b68f1b014cf4a39fa288e3a1ac57)
+        ;
+
+        
+    
+    
+            var marker_c9ac8e63fc9845aebc0f9d5fa0166574 = L.marker(
+                [33.84839298, 132.7741736],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_bb36587846ba4109ba004923c3d737c3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_c9ac8e63fc9845aebc0f9d5fa0166574.setIcon(icon_bb36587846ba4109ba004923c3d737c3);
+        
+    
+        var popup_5444dbcd678045f183669ce1c4660524 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_49148d260e014b9b85728f1492a32df7 = $(`<div id="html_49148d260e014b9b85728f1492a32df7" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=松山赤十字病院"><font size="4" color="#0000FF">松山赤十字病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-924-1111">089-924-1111</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市文京町1">松山市文京町1</a></p></div> </div>`)[0];
+            popup_5444dbcd678045f183669ce1c4660524.setContent(html_49148d260e014b9b85728f1492a32df7);
+        
+
+        marker_c9ac8e63fc9845aebc0f9d5fa0166574.bindPopup(popup_5444dbcd678045f183669ce1c4660524)
+        ;
+
+        
+    
+    
+            var marker_26117c0f1574415da646c0b5abf700df = L.marker(
+                [33.83923512, 132.7537778],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_6114c7c71de14dc08803bb344715d792 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_26117c0f1574415da646c0b5abf700df.setIcon(icon_6114c7c71de14dc08803bb344715d792);
+        
+    
+        var popup_0e2f5751b70b480b914592afc8dc4284 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c8e63131063e4abaac122dc9f9e619db = $(`<div id="html_c8e63131063e4abaac122dc9f9e619db" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=松山市民病院"><font size="4" color="#0000FF">松山市民病院</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-943-1151">089-943-1151</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=松山市大手町2丁目6-5">松山市大手町2丁目6-5</a></p></div> </div>`)[0];
+            popup_0e2f5751b70b480b914592afc8dc4284.setContent(html_c8e63131063e4abaac122dc9f9e619db);
+        
+
+        marker_26117c0f1574415da646c0b5abf700df.bindPopup(popup_0e2f5751b70b480b914592afc8dc4284)
+        ;
+
+        
+    
+    
+            var marker_f92f94e43f524f6ba7213c92e324efcd = L.marker(
+                [33.79928627, 132.8821263],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_306972d6af1644e5ac78411f7a358507 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_f92f94e43f524f6ba7213c92e324efcd.setIcon(icon_306972d6af1644e5ac78411f7a358507);
+        
+    
+        var popup_af0de86445fd430a8c2bbf23baf13be2 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6630dc11f6a0465699bc07ec2e7be5b7 = $(`<div id="html_6630dc11f6a0465699bc07ec2e7be5b7" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=愛媛医療センター"><font size="4" color="#0000FF">愛媛医療センター</font></a></h3></strong><hr><p>医療機関の種類: 二次救急医療機関</p><p>電話番号: <a href="089-964-2411">089-964-2411</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=東温市横河原366">東温市横河原366</a></p></div> </div>`)[0];
+            popup_af0de86445fd430a8c2bbf23baf13be2.setContent(html_6630dc11f6a0465699bc07ec2e7be5b7);
+        
+
+        marker_f92f94e43f524f6ba7213c92e324efcd.bindPopup(popup_af0de86445fd430a8c2bbf23baf13be2)
+        ;
+
+        
+    
+    
+            var marker_0cf2d21fdfa34e909a68e9acdd544cfa = L.marker(
+                [33.83144911, 132.7653272],
+                {}
+            ).addTo(marker_cluster_e5d0fc10cc1942dd917c2655041be319);
+        
+    
+            var icon_6c54e5a85587456fba4ec66760deb4ab = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "plus-sign", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
+            );
+            marker_0cf2d21fdfa34e909a68e9acdd544cfa.setIcon(icon_6c54e5a85587456fba4ec66760deb4ab);
+        
+    
+        var popup_37a77dcd3c5f432bb11aeb368038327b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_fc0aa82934f34b72be993d1437135299 = $(`<div id="html_fc0aa82934f34b72be993d1437135299" style="width: 100.0%; height: 100.0%;"><div id="q"><strong><h3><a href="https://maps.google.co.jp/maps?q=愛媛県立中央病院"><font size="4" color="#0000FF">愛媛県立中央病院</font></a></h3></strong><hr><p>医療機関の種類: 三次救急医療機関</p><p>電話番号: <a href="089-947-1111">089-947-1111</a></p><p>住所: <a href="https://maps.google.co.jp/maps?q=春日町83">春日町83</a></p></div> </div>`)[0];
+            popup_37a77dcd3c5f432bb11aeb368038327b.setContent(html_fc0aa82934f34b72be993d1437135299);
+        
+
+        marker_0cf2d21fdfa34e909a68e9acdd544cfa.bindPopup(popup_37a77dcd3c5f432bb11aeb368038327b)
+        ;
+
+        
+    
+</script>
